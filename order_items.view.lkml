@@ -1,10 +1,12 @@
 view: order_items {
   sql_table_name: public.order_items ;;
 
-  dimension: id {
+dimension: id {
     primary_key: yes
     type: number
     sql: ${TABLE}.id ;;
+    #description: "this is primary key"
+    #hidden: yes
   }
 
   dimension_group: created {
@@ -59,11 +61,6 @@ view: order_items {
     sql: ${TABLE}.returned_at ;;
   }
 
-  dimension: sale_price {
-    type: number
-    sql: ${TABLE}.sale_price ;;
-  }
-
   dimension_group: shipped {
     type: time
     timeframes: [
@@ -87,10 +84,47 @@ view: order_items {
     type: number
     sql: ${TABLE}.user_id ;;
   }
+#########################################
+# (TRAINING-1) ${TABLE} references the table (database object) defined in the View (see sql_table_name at top)
+  dimension: sale_price {
+    type: number
+    sql: ${TABLE}.sale_price ;;
+  }
+#(TRAINING-4) Referencing fields in other views
+  dimension: profit {
+    type: number
+    value_format_name: usd
+    sql: ${sale_price} -
+      ${inventory_items.cost} ;;
+    group_label: "Sales Measures"
+  }
 
   measure: count {
     type: count
     drill_fields: [detail*]
+  }
+
+# (TRAINING-SUBSTITUTION OPERATOR TO REF LOOKER OBJECT ${sale_price} DIMENSION ABOVE)
+  measure: total_revenue {
+    type: sum
+    sql: ${sale_price} ;;
+    group_label: "Sales Measures"
+
+  }
+# (TRAINING-SUBSTITUTION OPERATOR TO REF LOOKER OBJECT ${sale_price} DIMENSION ABOVE)
+  measure: average_sale_price {
+    type: average
+    sql: ${sale_price} ;;
+    group_label: "Sales Measures"
+  }
+#(TRAINING) Filtered measures (note use of field from another view)
+  measure: total_sales_new_users {
+    type: sum
+    sql: ${sale_price};;
+    filters:  {
+      field: users.is_new_customer
+      value: "Yes"
+    }
   }
 
   # ----- Sets of fields for drilling ------

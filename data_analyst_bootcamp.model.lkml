@@ -6,21 +6,33 @@ include: "*.view"
 # include all the dashboards
 # include: "*.dashboard"
 
+
 datagroup: data_analyst_bootcamp_default_datagroup {
   # sql_trigger: SELECT MAX(id) FROM etl_log;;
   max_cache_age: "1 hour"
 }
 persist_with: data_analyst_bootcamp_default_datagroup
 
-explore: inventory_items {}
-#
+explore: inventory_items {
+#   join: products {
+#     type: left_outer
+#     sql_on: ${inventory_items.product_id} = ${products.id} ;;
+#     relationship: many_to_one
+}
 
 explore: order_items {
+  sql_always_having: ${count}>3 ;;
   join: users {
     type: left_outer
     sql_on: ${order_items.user_id} = ${users.id} ;;
     relationship: many_to_one
   }
+
+#   join: user_order_facts {
+#     sql_on: ${user_order_facts.user_id} = ${users.id} ;;
+#     type: left_outer
+#     relationship: one_to_one
+#   }
 
   join: inventory_items {
     type: left_outer
@@ -33,10 +45,8 @@ explore: order_items {
     sql_on: ${inventory_items.product_id} = ${products.id} ;;
     relationship: many_to_one
   }
-
 }
 
 explore: products {}
-
 
 explore: users {}
