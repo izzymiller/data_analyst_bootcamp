@@ -79,6 +79,19 @@ view: order_items {
     sql: ${TABLE}.shipped_at ;;
   }
 
+#   dimension: shipping_days {
+#     type: number
+#     sql: DATEDIFF(day, ${shipped_date}, ${delivered_date}) ;;
+#   }
+
+dimension_group: shipping_days {
+  label: "Shipping Days"
+  type: duration
+  sql_start: ${shipped_date} ;;
+  sql_end: ${delivered_date} ;;
+  intervals: [day]
+}
+
   dimension: status {
     type: string
     sql: ${TABLE}.status ;;
