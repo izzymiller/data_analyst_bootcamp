@@ -1,5 +1,5 @@
 view: order_items {
-  sql_table_name: public.order_items ;;
+  sql_table_name: looker-private-demo.ecomm.order_items ;;
 
   dimension: order_item_id {
     primary_key: yes
